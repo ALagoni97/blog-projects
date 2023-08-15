@@ -3,17 +3,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [data, setData] = useState();
+  const [data, setData] = useState<{ num: number } | null>();
 
   useEffect(() => {
-    const evtSource = new EventSource("http://localhost:4000/event-source", {
-      withCredentials: false,
-    });
-    evtSource.onmessage = (event) => {
+    const evtSource = new EventSource("http://localhost:4000/event-source");
+    evtSource.addEventListener("interval", (event) => {
       if (event.data) {
-        setData(event.data);
+        setData(JSON.parse(event.data));
       }
-    };
+    });
   }, []);
   return (
     <>
@@ -24,7 +22,11 @@ export default function Home() {
       </Head>
       <div className="container">
         <h1>Welcome</h1>
-        {data}
+        {data && (
+          <div>
+            <p>Counter: {data.num}</p>
+          </div>
+        )}
       </div>
     </>
   );
