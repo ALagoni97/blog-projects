@@ -21,7 +21,7 @@ app.get("/event-source", (req, res) => {
       clearInterval(interval);
       res.end();
     }
-    res.write(`event: interval\n`);
+    //res.write(`event: interval\n`);
     res.write(`id: interval${counter} \n`);
     res.write(`data: ${JSON.stringify({ num: counter })}\n\n`);
   }, 1000);

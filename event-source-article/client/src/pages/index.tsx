@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [data, setData] = useState<{ num: number } | null>();
-
   useEffect(() => {
     const evtSource = new EventSource("http://localhost:4000/event-source");
     evtSource.addEventListener("interval", (event) => {
