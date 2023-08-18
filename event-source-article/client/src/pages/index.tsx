@@ -12,6 +12,14 @@ export default function Home() {
         setData(JSON.parse(event.data));
       }
     });
+    /* 
+    Or if you are using straight up messages and not custom events:
+    */
+    evtSource.onmessage = (event) => {
+      if (event.data) {
+        setData(JSON.parse(event.data));
+      }
+    };
   }, []);
   return (
     <>
