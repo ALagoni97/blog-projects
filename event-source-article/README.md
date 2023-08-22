@@ -4,14 +4,11 @@ The example I am gonna show later in the article is based around the following s
 
 - React Client that will open a connection with the backend.
   - Handle the events from the EventSource and react to the event.
-- Node.js Express backend that will allow for this open connection and write streams of data back to the client in the form of a simple counter.
+- Node.js Express backend with an endpoint that require an open connection and will write streams of data back to the client in the form of a simple counter.
 
-To understand the SSE and how we would usually do this in an application before let's have a look a visual example of fetching a users payment status. In the left side of the screenshot you can see we send a GET request fetching the payment status. We instantly receive a "pending" status as the payment hasn't gone through yet. Our frontend will have some kind of long polling feature that refetches this. At some point we get the desired data (error / complete) and we can change the frontend accordingly. The example on the right side will show an example using the concept of Event Driven / SSE. As you can see we open a connection to the backend with our GET request. At some point we get streams of data containing the complete / error data we are expecting. This means we show the payment status realtime and only open 1 connection to the backend. 
+To understand the SSE and how we would usually do this in an application before SSE / Event Driven Architechure - Let's have a look a visual example of fetching a users payment status. In the left side of the screenshot you can see we send a GET request fetching the payment status. We instantly receive a "pending" status as the payment hasn't gone through yet. Our frontend will have some kind of long polling feature that refetches this. At some point we get the desired data (error / complete) and we can change the frontend accordingly. The example on the right side will show an example using the concept of Event Driven / SSE. As you can see we open a connection to the backend with our GET request. At some point we get streams of data containing the complete / error data we are expecting. This means we show the payment status realtime and only open 1 connection to the backend. 
 
-![Representation of standard flow](./assets/image-new.png)
-
-
-I hope the visual representation helped with understanding the benefit behind utilizing SSE. 
+![Representation of standard flow](./assets/image-new.png) 
 
 In this article tho i am not showing the above example but a more simple implementation of SSE. The concept is the same, but the feature is not. You can check out the whole code used in this article here: [Github](https://github.com/ALagoni97/blog-projects/tree/main/event-source-article)
 
@@ -98,7 +95,7 @@ This is obviously where you need to store the actual business logic and you fetc
 
 ### Implementation on the frontend (React):
 
-As EventSource is supported out of the box and won't require anything specifically on the client I have tried not showing too much React specific code. I hope it's possible to understand the bare minimum of the example and built upon that. It's important to note that EventSource must be instantiated in the client and not on the server, so if you are using some kind of server-side framework such as Next / Nuxt then remember to encapsulate the EventSource logic in the client. In my example you will see me wrap it in useEffect to make sure the EventSource is available.
+As EventSource is supported out of the box and won't require anything specifically on the client I have tried not showing too much React specific code. It's important to note that EventSource must be instantiated in the client and not on the server, so if you are using some kind of server-side framework such as Next / Nuxt then remember to encapsulate the EventSource logic in the client. In my example you will see me wrap it in useEffect to make sure the EventSource is available.
 
 #### Listening for messages:
 
