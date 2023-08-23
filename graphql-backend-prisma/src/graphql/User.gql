@@ -1,0 +1,14 @@
+type Query {
+  users(filter: UserFilter!, pagination: PaginationInput!): [User!]
+}
+
+type User {
+  userId: string!
+  name: string!
+  email: string!
+}
+
+input UserFilter {
+  name: string
+  email: string
+}

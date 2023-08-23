@@ -1,0 +1,11 @@
+input PaginationInput {
+  perPage: Int!
+  page: Int!
+}
+
+type Pagination {
+  total: Int!
+  page: Int!
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+}

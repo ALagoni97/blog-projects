@@ -9,9 +9,10 @@ Let's go over why we choose Prisma as our ORM and the N plus 1 problem immediate
 So GraphQL 
 
 ### Setup
-Initial setup from Apollo Server 4 with Typescript support. 
+I have gone and followed Apollo Server 4 quickstart setup where we get a initial setup from Apollo Server 4 with Typescript support. 
 ### Resolvers and GraphQL Type definitions
 ### Context and authorization
+### More complex queries and how Prisma handles them
 ### Maybe: Pagination
 ### Maybe: Versioning and CI flow
 ### Maybe: Fragments

@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  database:
+    container_name: postgres
+    image: postgres
+    ports:
+      - '${DB_PORT}:5432'
+    volumes:
+      - ./data/database:/data/db
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=admin
+      - POSTGRES_HOST=${DB_HOST}
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: andreastlagoni@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    volumes:
+      - ./data/pgadmin:/data/pgadmin
