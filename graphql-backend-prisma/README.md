@@ -13,6 +13,7 @@ I have gone and followed Apollo Server 4 quickstart setup where we get a initial
 ### Resolvers and GraphQL Type definitions
 ### Context and authorization
 ### More complex queries and how Prisma handles them
+### Eslint and CI
 ### Maybe: Pagination
 ### Maybe: Versioning and CI flow
 ### Maybe: Fragments
