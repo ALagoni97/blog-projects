@@ -7,4 +7,16 @@ export const UserResolver: GQLResolvers = {
       return users;
     },
   },
+  User: {
+    posts: async (parent, args, context) => {
+      const post = context.database.user
+        .findUnique({
+          where: {
+            userId: parent.userId,
+          },
+        })
+        .Posts();
+      return post;
+    },
+  },
 };

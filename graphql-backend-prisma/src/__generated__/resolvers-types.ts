@@ -17,6 +17,12 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type GQLComment = {
+  __typename?: 'Comment';
+  commentId: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+};
+
 export type GQLPagination = {
   __typename?: 'Pagination';
   hasNext: Scalars['Boolean']['output'];
@@ -28,6 +34,13 @@ export type GQLPagination = {
 export type GQLPaginationInput = {
   page: Scalars['Int']['input'];
   perPage: Scalars['Int']['input'];
+};
+
+export type GQLPost = {
+  __typename?: 'Post';
+  comments?: Maybe<Array<GQLComment>>;
+  postId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type GQLQuery = {
@@ -43,13 +56,12 @@ export type GQLQueryUsersArgs = {
 
 export type GQLUser = {
   __typename?: 'User';
-  email: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  posts?: Maybe<Array<GQLPost>>;
   userId: Scalars['String']['output'];
 };
 
 export type GQLUserFilter = {
-  email?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -126,9 +138,11 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type GQLResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Comment: ResolverTypeWrapper<GQLComment>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Pagination: ResolverTypeWrapper<GQLPagination>;
   PaginationInput: GQLPaginationInput;
+  Post: ResolverTypeWrapper<GQLPost>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<GQLUser>;
@@ -138,13 +152,21 @@ export type GQLResolversTypes = ResolversObject<{
 /** Mapping between all available schema types and the resolvers parents */
 export type GQLResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
+  Comment: GQLComment;
   Int: Scalars['Int']['output'];
   Pagination: GQLPagination;
   PaginationInput: GQLPaginationInput;
+  Post: GQLPost;
   Query: {};
   String: Scalars['String']['output'];
   User: GQLUser;
   UserFilter: GQLUserFilter;
+}>;
+
+export type GQLCommentResolvers<ContextType = Context, ParentType extends GQLResolversParentTypes['Comment'] = GQLResolversParentTypes['Comment']> = ResolversObject<{
+  commentId?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type GQLPaginationResolvers<ContextType = Context, ParentType extends GQLResolversParentTypes['Pagination'] = GQLResolversParentTypes['Pagination']> = ResolversObject<{
@@ -155,19 +177,28 @@ export type GQLPaginationResolvers<ContextType = Context, ParentType extends GQL
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GQLPostResolvers<ContextType = Context, ParentType extends GQLResolversParentTypes['Post'] = GQLResolversParentTypes['Post']> = ResolversObject<{
+  comments?: Resolver<Maybe<Array<GQLResolversTypes['Comment']>>, ParentType, ContextType>;
+  postId?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GQLQueryResolvers<ContextType = Context, ParentType extends GQLResolversParentTypes['Query'] = GQLResolversParentTypes['Query']> = ResolversObject<{
   users?: Resolver<Maybe<Array<GQLResolversTypes['User']>>, ParentType, ContextType, RequireFields<GQLQueryUsersArgs, 'pagination'>>;
 }>;
 
 export type GQLUserResolvers<ContextType = Context, ParentType extends GQLResolversParentTypes['User'] = GQLResolversParentTypes['User']> = ResolversObject<{
-  email?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
+  posts?: Resolver<Maybe<Array<GQLResolversTypes['Post']>>, ParentType, ContextType>;
   userId?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type GQLResolvers<ContextType = Context> = ResolversObject<{
+  Comment?: GQLCommentResolvers<ContextType>;
   Pagination?: GQLPaginationResolvers<ContextType>;
+  Post?: GQLPostResolvers<ContextType>;
   Query?: GQLQueryResolvers<ContextType>;
   User?: GQLUserResolvers<ContextType>;
 }>;

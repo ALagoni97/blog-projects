@@ -6,7 +6,8 @@
   "scripts": {
     "generate": "graphql-codegen --config codegen.yml",
     "build": "yarn generate && tsc && node -v",
-    "dev": "tsc && tsc-watch --onSuccess \"node dist/index.js\""
+    "start:dev": "tsc &&  tsc-watch --onSuccess \"node dist/index.js\"",
+    "dev": "concurrently -n TS,GQL -c blue,magenta --kill-others \"yarn start:dev \" \"yarn generate -w \" "
   },
   "keywords": [],
   "author": "",
@@ -24,11 +25,15 @@
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@types/node": "^20.5.1",
+    "concurrently": "^8.2.1",
     "prisma": "^5.2.0",
     "tsc-watch": "^6.0.4",
     "typescript": "^5.1.6"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"
+  },
+  "peerDependencies": {
+    "@parcel/watcher": "^2.3.0"
   }
 }
