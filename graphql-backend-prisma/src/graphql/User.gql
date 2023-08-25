@@ -5,10 +5,8 @@ type Query {
 type User {
   userId: String!
   name: String!
-  email: String!
 }
 
 input UserFilter {
   name: String
-  email: String
 }

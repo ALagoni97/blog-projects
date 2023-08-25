@@ -1,16 +1,9 @@
-export const UserResolver: any = {
+import { GQLResolvers } from "../__generated__/resolvers-types";
+
+export const UserResolver: GQLResolvers = {
   Query: {
     users: async (_, args, context) => {
-      const users = [
-        {
-          title: "The Awakening",
-          author: "Kate Chopin",
-        },
-        {
-          title: "City of Glass",
-          author: "Paul Auster",
-        },
-      ];
+      const users = await context.database.user.findMany();
       return users;
     },
   },
