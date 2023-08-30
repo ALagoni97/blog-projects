@@ -4,21 +4,21 @@ services:
     container_name: postgres_graphql_article
     image: postgres
     ports:
-      - "${DB_PORT}:5432"
+      - "5435:5432"
     volumes:
       - ./data/database:/data/db
     environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=graphql-article
       - POSTGRES_USER=admin
-      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_HOST=localhost
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4_graphql_article
     ports:
       - "5055:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: andreastlagoni@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
     volumes:
       - ./data/pgadmin:/data/pgadmin
