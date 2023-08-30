@@ -18,7 +18,7 @@ This will allow you test these features out for yourself. This is how you would 
 
 You now have a simple GraphQL backend with context properties and a way for you to experiment with new features and allow you to use the rest of this article as an inspiration to test how the different features work. 
 
-### Context and authorization
+### Context object
 We obviously want some context for our GraphQL resolvers so they can easily access any authentication state of the user trying to access the data and also gain access to the database. We do this by extending the BaseContext of Apollo Server. It is done where you instantiate your Apollo Server. 
 
 ```ts
@@ -49,6 +49,114 @@ const { url } = await startStandaloneServer(server, {
 });
 ```
 The satisfies operator is used here to make Typescript aware of what context properties it should expect, which will help Typescript with autocompleting the context as expected. Without this, the `startStandaloneServer` would throw so you knew you needed something, but you wouldn't get autocompletion in the context object. 
+
+As far as the token is your context I would in a real world example replace it with some kind of authentication of the user. Verifying that the query is infact authorized instead of just returning a string. 
+
+### Field resolvers in GraphQL
+Let's take a look at how resolvers work in Apollo / GraphQL. A resolver in Apollo is basically just a function which sole purpose is to populate some data for the specific query that is being run. It can return any amount of data we define and it can return data from our own Database or fetch from external API's. 
+
+We defined them very simply by creating a function. This function will take the 4 arguments:
+1. parent - This is a value returned by the previous resolver. We will use this in field resolvers that need the context of the parent to be able to populate data. If it's a top-level field (As in the first resolver that the query meets) then this field is populated by rootValue function passes to Apollo Server's constructor. 
+2. args - Arguments passes to the resolver. This can be filtering from the client or pagination or anything that get's passes as an argument to the resolver. 
+3. context - This is the context value that we previously populated in the `startStandaloneServer`. We can populate this object with any data we want and is shared on all resolvers. 
+4. info - Contains information about the operation's execution state, we won't really use this in this article. You can read more [here](https://github.com/graphql/graphql-js/blob/f851eba93167b04d6be1373ff27927b16352e202/src/type/definition.ts#L891-L902)
+
+The next few examples I am going to show here is being run by a simple query:
+```graphql
+query Users($pagination: PaginationInput!, $filter: UserFilter) {
+  users(pagination: $pagination, filter: $filter) {
+    name
+    posts {
+      comments {
+        message
+        commentId
+      }
+      postId
+      title
+    }
+  }
+}
+```
+Here is the types for the queries:
+```graphql
+type Query {
+  users(filter: UserFilter, pagination: PaginationInput!): [User!]
+}
+
+type User {
+  userId: String!
+  name: String!
+  posts: [Post!]
+}
+
+input UserFilter {
+  name: String
+}
+
+type Post {
+  postId: String!
+  title: String!
+  comments: [Comment!]
+}
+
+type Comment {
+  commentId: String!
+  message: String!
+}
+```
+We define the resolver like this:
+```ts
+Query: {
+    users: async (_, { pagination, filter }, context) => {
+      const users = await context.database.user.findMany({
+        where: {
+          name: filter.name,
+        },
+        take: pagination.perPage,
+      });
+      return users;
+    },
+},
+```
+
+Here we are using Prisma as our ORM and trying to fetch all users with pagination. 
+
+**What about posts and comments?**
+The posts and comments are going to be populated by their own field resolvers inside user resolver. We are doing this to seperate the business logic from each resolvers to their own. We will define the posts resolver like this:
+```ts
+User: {
+    posts: async (parent, args, context) => {
+      const post = await context.database.user
+        .findUnique({
+          where: {
+            userId: parent.userId,
+          },
+        })
+        .Posts();
+      return post;
+    },
+},
+```
+Here we are using the parent argument being passed down from the top-level users resolver. We use that to get the userId from that user and return all their posts. 
+
+**Why findUnique and not findMany?**
+It would probably make sense to do a `context.database.post.findMany()` instead of what we are doing here, but this is constraint directly from Prisma. We need to utilize their built in DataLoader and for that we need to use `.findUnique()`. As of writing this article, they have not yet implemented batching to `findMany()`. See the issue [here](https://github.com/prisma/prisma/issues/1477)
+
+For the comments of each post we do exactly the same as we did with the post:
+```ts
+Post: {
+    comments: async (parent, args, context) => {
+      const comments = await context.database.post
+        .findUnique({
+          where: {
+            postId: parent.postId,
+          },
+        })
+        .Comments({ take: 2 });
+      return comments;
+    },
+},
+```
 
 ### More complex queries and how Prisma handles them
 ### Eslint and CI

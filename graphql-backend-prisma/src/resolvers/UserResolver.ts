@@ -3,8 +3,11 @@ import { databaseConnection } from "../context/Database";
 
 export const UserResolver: GQLResolvers = {
   Query: {
-    users: async (_, { pagination }, context) => {
+    users: async (_, { pagination, filter }, context) => {
       const users = await context.database.user.findMany({
+        where: {
+          name: filter.name,
+        },
         take: pagination.perPage,
       });
       return users;
