@@ -5,10 +5,20 @@ type Query {
 type User {
   userId: String!
   name: String!
-  email: String!
+  posts: [Post!]
 }
 
 input UserFilter {
   name: String
-  email: String
+}
+
+type Post {
+  postId: String!
+  title: String!
+  comments: [Comment!]
+}
+
+type Comment {
+  commentId: String!
+  message: String!
 }
