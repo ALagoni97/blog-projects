@@ -1,6 +1,8 @@
 ## How to create a GraphQL backend with Apollo and Prisma
 In this post I am going to show how to create a GraphQL backend with Apollo Server and Prisma as our ORM. The goal of the post is to give some insights behind the scenes on how Prisma solves the N plus 1 problem and how to create a backend where we use basic authorization and using Apollo Server context to provide valuable information to each our resolvers. After this post you should be able to create a new GraphQL backend the proper way or change your existing backend to utilize these features. You can see the entire code in this post at this [link]()
 
+This article also takes inspiration from a video by Prisma that explains the N plus 1 problem and how Prisma solves this really well - Check it out [here](https://www.youtube.com/watch?v=7oMfBGEdwsc&)
+
 ### Setup
 **Note**: If you just want to read about the different features and see code examples, then just to the next section [here](#resolvers-and-graphql-type-definitions)
 
@@ -157,6 +159,32 @@ Post: {
     },
 },
 ```
+Let's take a look at what's going on under the hood
+## The queries and Prisma under the hood
+Let's take example in the earlier used query:
+```graphql
+query Users($pagination: PaginationInput!, $filter: UserFilter) {
+  users(pagination: $pagination, filter: $filter) {
+    name
+    posts {
+      comments {
+        message
+        commentId
+      }
+      postId
+      title
+    }
+  }
+}
+```
+GraphQl will resolve this into these steps:
+![GraphQL query overview](./assets/graphql-3.png)
+It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing raw SQL it will look like this in the resolver:
+```
+```
+If you run this with debug mode in Prisma you will see alot of select statements. This is because if you follow the diagram above you can see each of these post / comment queries is their own SELECT statement. 
+![]()
+This is the famous N plus 1 problem because we need to resolve N plus 1 queries. You can guess that this is a major issue for a server because we are overfetching from the database. 
 
 ### More complex queries and how Prisma handles them
 ### Eslint and CI

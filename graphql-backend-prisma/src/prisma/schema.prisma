@@ -22,7 +22,7 @@ model Post {
     postId String @id @default(uuid()) @map("post_id") @db.Uuid
     title  String
 
-    userId   String    @db.Uuid
+    userId   String    @map("user_id") @db.Uuid
     User     User      @relation(fields: [userId], references: [userId])
     Comments Comment[]
 
@@ -33,9 +33,9 @@ model Comment {
     commentId String @id @default(uuid()) @map("comment_id") @db.Uuid
     message   String
 
-    postId   String @db.Uuid
+    postId   String @map("post_id") @db.Uuid
     Post     Post   @relation(fields: [postId], references: [postId])
-    senderId String @db.Uuid
+    senderId String @map("sender_id") @db.Uuid
     Sender   User   @relation(name: "SenderComment", fields: [senderId], references: [userId])
 
     @@map("comments")
