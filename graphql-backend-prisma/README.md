@@ -12,13 +12,44 @@ This will allow you test these features out for yourself. This is how you would 
 2. Fork the repository and clone it locally
 3. Open the project and type `yarn install` or `npm install`
 4. Type `docker-compose up -d`
-5. Type `yarn prisma migrate dev` - This should create the correct tables and seed data in your database
+5. Type `yarn prisma migrate dev` - This should create the correct tables and seed data in your database. If the seed data is not present - type `yarn prisma db seed`
 6. Now start the server `yarn dev`
 7. Now you can open the localhost Apollo Playground, where you can execute your queries. 
 
 You now have a simple GraphQL backend with context properties and a way for you to experiment with new features and allow you to use the rest of this article as an inspiration to test how the different features work. 
 
 ### Context and authorization
+We obviously want some context for our GraphQL resolvers so they can easily access any authentication state of the user trying to access the data and also gain access to the database. We do this by extending the BaseContext of Apollo Server. It is done where you instantiate your Apollo Server. 
+
+```ts
+const server = new ApolloServer<Context>({
+  typeDefs,
+  resolvers,
+});
+```
+The Context interface is a type that you have specified what that type contains. This is your Context type so include everything that you want in your server. My example is going to include the database connection and a simple token. This token is being extracted from the req headers sent to the server. 
+
+```ts
+import { PrismaClient } from "@prisma/client";
+
+export interface Context {
+  database: PrismaClient;
+  token?: string;
+}
+```
+Then in the instantiating of the server we need to actually provide all the data to the context values:
+```ts
+const { url } = await startStandaloneServer(server, {
+  listen: { port: 4000 },
+  context: async ({ req, res }) =>
+    ({
+      database: databaseConnection,
+      token: getToken(req),
+    } satisfies Context),
+});
+```
+The satisfies operator is used here to make Typescript aware of what context properties it should expect, which will help Typescript with autocompleting the context as expected. Without this, the `startStandaloneServer` would throw so you knew you needed something, but you wouldn't get autocompletion in the context object. 
+
 ### More complex queries and how Prisma handles them
 ### Eslint and CI
 ### Maybe: Pagination
