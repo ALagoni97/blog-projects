@@ -179,12 +179,26 @@ query Users($pagination: PaginationInput!, $filter: UserFilter) {
 ```
 GraphQl will resolve this into these steps:
 ![GraphQL query overview](./assets/graphql-3.png)
-It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing raw SQL it will look like this in the resolver:
-```
+It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing the field resolvers with `findMany()` from Prisma you will see the N plus 1 problem very clearly. 
+```ts
+User: {
+    posts: async (parent, args, context) => {
+      const post = await context.database.post.findMany({
+        where: {
+          userId: parent.userId,
+        },
+      });
+      return post;
+    },
+},
 ```
 If you run this with debug mode in Prisma you will see alot of select statements. This is because if you follow the diagram above you can see each of these post / comment queries is their own SELECT statement. 
-![]()
-This is the famous N plus 1 problem because we need to resolve N plus 1 queries. You can guess that this is a major issue for a server because we are overfetching from the database. 
+![Select queries](./assets/select-queries.png)
+This is the famous N plus 1 problem because we need to resolve N plus 1 queries. You can guess that this is a major issue for a server because we are using more ressources than we need to. Just imagine what it looks like if we would add yet another child field to the query. For example adding another one-to-many relation to the comment. Suddenly it will be alot more queries to the database than what is needed. 
+
+And now if we take it back to using the correct syntax and using Prisma `findUnique()` method we will see a drastically better select statements:
+![Select queries](./assets/select-queries-findunique.png)
+
 
 ### More complex queries and how Prisma handles them
 ### Eslint and CI

@@ -2,7 +2,7 @@ import { Comment, Post, Prisma } from "@prisma/client";
 import { GQLResolvers } from "../__generated__/resolvers-types";
 import { databaseConnection } from "../context/Database";
 
-/* export const UserResolver: GQLResolvers = {
+export const UserResolver: GQLResolvers = {
   Query: {
     users: async (_, { pagination, filter }, context) => {
       const users = await context.database.user.findMany({
@@ -38,46 +38,45 @@ import { databaseConnection } from "../context/Database";
       return comments;
     },
   },
-}; */
+};
 
 /* 
-Find many
+Find many - Clearly see N plus 1 problem
 */
+// export const UserResolver: GQLResolvers = {
+//   Query: {
+//     users: async (_, { pagination, filter }, context) => {
+//       const users = await context.database.user.findMany({
+//         where: {
+//           name: filter.name || undefined,
+//         },
+//         take: pagination.perPage,
+//       });
+//       return users;
+//     },
+//   },
+//   User: {
+//     posts: async (parent, args, context) => {
+//       const post = await context.database.post.findMany({
+//         where: {
+//           userId: parent.userId,
+//         },
+//       });
+//       return post;
+//     },
+//   },
+//   Post: {
+//     comments: async (parent, args, context) => {
+//       const comments = await context.database.comment.findMany({
+//         where: {
+//           postId: parent.postId,
+//         },
+//       });
 
-export const UserResolver: GQLResolvers = {
-  Query: {
-    users: async (_, { pagination, filter }, context) => {
-      const users = await context.database.user.findMany({
-        where: {
-          name: filter.name || undefined,
-        },
-        take: pagination.perPage,
-      });
-      return users;
-    },
-  },
-  User: {
-    posts: async (parent, args, context) => {
-      const post = await context.database.post.findMany({
-        where: {
-          userId: parent.userId,
-        },
-      });
-      return post;
-    },
-  },
-  Post: {
-    comments: async (parent, args, context) => {
-      const comments = await context.database.comment.findMany({
-        where: {
-          postId: parent.postId,
-        },
-      });
-
-      return comments;
-    },
-  },
-};
+//       return comments;
+//     },
+//   },
+// };
 
 /* 
 Current include way
