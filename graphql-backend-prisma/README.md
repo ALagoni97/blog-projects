@@ -188,19 +188,20 @@ query Users($pagination: PaginationInput!, $filter: UserFilter) {
   users(pagination: $pagination, filter: $filter) {
     name
     posts {
+      postId
+      title
       comments {
         message
         commentId
       }
-      postId
-      title
     }
   }
 }
 ```
 
-GraphQl will resolve this into these steps:
+GraphQL will resolve this into these steps:
 ![GraphQL query overview](./assets/graphql-3.png)
+
 It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing the field resolvers with `findMany()` from Prisma you will see the N plus 1 problem very clearly.
 
 ```ts
