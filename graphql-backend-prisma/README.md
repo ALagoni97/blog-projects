@@ -4,6 +4,8 @@ In this post I am going to show how to create a GraphQL backend with Apollo Serv
 
 This article also takes inspiration from a video by Prisma that explains the N plus 1 problem and how Prisma solves this really well - Check it out [here](https://www.youtube.com/watch?v=7oMfBGEdwsc&)
 
+Inspiration is also taken from this article from Prisma themselves - Read it [here](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance)
+
 ### Setup
 
 **Note**: If you just want to read about the different features and see code examples, then just jump to the next section [here](#resolvers-and-graphql-type-definitions)
@@ -224,18 +226,4 @@ This is the famous N plus 1 problem because we need to resolve N plus 1 queries.
 And now if we take it back to using the correct syntax and using Prisma `findUnique()` method we will see a drastically better select statements:
 ![Select queries](./assets/select-queries-findunique.png)
 
-### More complex queries and how Prisma handles them
-
-### Eslint and CI
-
-### Maybe: Pagination
-
-### Maybe: Versioning and CI flow
-
-### Maybe: Fragments
-
-### Maybe: Handling errors
-
-### Extending the backend with image upload and SSE
-
-### Extending GraphQL schema with more complex queries
+Behind the scenes Prisma is trying to batch these queries `findUnique()` together with a `WHERE IN()` statement meaning they are being batched together and not really run individually. That is the DataLoader built in Prisma working it's magic. If you want to learn more about this I suggest reading [this article](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance)
