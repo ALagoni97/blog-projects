@@ -252,3 +252,5 @@ type User {
 
 You can add it to the root query or to specific fields like the `user.unreadMessages` field.
 You can read more about it [here](https://www.apollographql.com/docs/apollo-server/schema/directives/).
+
+I hope you gained something from this article and learned something about Prisma, Apollo and GraphQL!
