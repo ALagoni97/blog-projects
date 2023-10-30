@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  database:
+    container_name: postgres_graphql_article
+    image: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./data/database:/data/db
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=graphql-article
+      - POSTGRES_USER=admin
+      - POSTGRES_HOST=localhost
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_graphql_article
+    ports:
+      - "5055:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    volumes:
+      - ./data/pgadmin:/data/pgadmin

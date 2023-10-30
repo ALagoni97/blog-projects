@@ -1,0 +1,39 @@
+{
+  "name": "graphql-backend-prisma",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generate": "graphql-codegen --config codegen.yml",
+    "build": "yarn generate && tsc && node -v",
+    "start:dev": "tsc &&  tsc-watch --onSuccess \"node dist/index.js\"",
+    "dev": "concurrently -n TS,GQL -c blue,magenta --kill-others \"yarn start:dev \" \"yarn generate -w \" "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@apollo/server": "^4.9.1",
+    "@graphql-tools/load-files": "^7.0.0",
+    "@graphql-tools/merge": "^9.0.0",
+    "@prisma/client": "^5.2.0",
+    "graphql": "^16.8.0",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
+    "@parcel/watcher": "^2.3.0",
+    "@types/node": "^20.5.1",
+    "concurrently": "^8.2.1",
+    "prisma": "^5.2.0",
+    "tsc-watch": "^6.0.4",
+    "typescript": "^5.1.6"
+  },
+  "prisma": {
+    "seed": "ts-node dist/prisma/seed.js",
+    "schema": "src/prisma/schema.prisma"
+  }
+}

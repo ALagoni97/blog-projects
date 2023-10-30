@@ -1,0 +1,42 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "../../node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = "postgresql://admin:root@127.0.0.1:5435/graphql-article"
+}
+
+model User {
+    userId String @id @default(uuid()) @map("user_id") @db.Uuid
+    name   String
+
+    Posts        Post[]
+    CommentsSent Comment[] @relation(name: "SenderComment")
+
+    @@map("users")
+}
+
+model Post {
+    postId String @id @default(uuid()) @map("post_id") @db.Uuid
+    title  String
+
+    userId   String    @map("user_id") @db.Uuid
+    User     User      @relation(fields: [userId], references: [userId])
+    Comments Comment[]
+
+    @@map("posts")
+}
+
+model Comment {
+    commentId String @id @default(uuid()) @map("comment_id") @db.Uuid
+    message   String
+
+    postId   String @map("post_id") @db.Uuid
+    Post     Post   @relation(fields: [postId], references: [postId])
+    senderId String @map("sender_id") @db.Uuid
+    Sender   User   @relation(name: "SenderComment", fields: [senderId], references: [userId])
+
+    @@map("comments")
+}

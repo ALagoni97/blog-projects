@@ -1,0 +1,26 @@
+type Query {
+  users(filter: UserFilter, pagination: PaginationInput!): [User!]
+    @auth(type: User)
+}
+
+type User {
+  userId: String!
+  name: String!
+  posts: [Post!]
+  unreadMessages: Int @auth(type: User)
+}
+
+input UserFilter {
+  name: String
+}
+
+type Post {
+  postId: String!
+  title: String!
+  comments: [Comment!]
+}
+
+type Comment {
+  commentId: String!
+  message: String!
+}
