@@ -58,6 +58,7 @@ export type GQLUser = {
   __typename?: 'User';
   name: Scalars['String']['output'];
   posts?: Maybe<Array<GQLPost>>;
+  unreadMessages?: Maybe<Scalars['Int']['output']>;
   userId: Scalars['String']['output'];
 };
 
@@ -191,6 +192,7 @@ export type GQLQueryResolvers<ContextType = Context, ParentType extends GQLResol
 export type GQLUserResolvers<ContextType = Context, ParentType extends GQLResolversParentTypes['User'] = GQLResolversParentTypes['User']> = ResolversObject<{
   name?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
   posts?: Resolver<Maybe<Array<GQLResolversTypes['Post']>>, ParentType, ContextType>;
+  unreadMessages?: Resolver<Maybe<GQLResolversTypes['Int']>, ParentType, ContextType>;
   userId?: Resolver<GQLResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;

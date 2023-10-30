@@ -228,6 +228,27 @@ And now if we take it back to using the correct syntax and using Prisma `findUni
 
 Behind the scenes Prisma is trying to batch these queries `findUnique()` together with a `WHERE IN()` statement meaning they are being batched together and not really run individually. That is the DataLoader built in Prisma working it's magic. If you want to learn more about this I suggest reading [this article](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance).
 
-## What's next
+## What's next?
 
-So far we have built a strong foundation to continue working with.
+So far we have built a strong foundation to continue working with. Next I would personally add directives as it gives a lot of flexibility later when expanding your API with security. There is obviously more things to do with an API, such as metrics, error handling, caching, but this foundation is just the most important parts and then focused on N plus 1 issue, which is very important to address and understanding.
+
+### Directives
+
+Directives in GraphQL will allow you to make certain fields in your GraphQL types and endpoints authenticated to specific roles users have. This will make it possible to fine-tune security in your backend to make sure types and data is sealed tight and only available for users that have specific roles.
+
+```graphql
+type Query {
+  users(filter: UserFilter, pagination: PaginationInput!): [User!]
+    @auth(type: User)
+}
+
+type User {
+  userId: String!
+  name: String!
+  posts: [Post!]
+  unreadMessages: Int @auth(type: User)
+}
+```
+
+You can add it to the root query or to specific fields like the `user.unreadMessages` field.
+You can read more about it [here](https://www.apollographql.com/docs/apollo-server/schema/directives/).

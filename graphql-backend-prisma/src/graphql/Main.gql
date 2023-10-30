@@ -1,11 +1,13 @@
 type Query {
   users(filter: UserFilter, pagination: PaginationInput!): [User!]
+    @auth(type: User)
 }
 
 type User {
   userId: String!
   name: String!
   posts: [Post!]
+  unreadMessages: Int @auth(type: User)
 }
 
 input UserFilter {

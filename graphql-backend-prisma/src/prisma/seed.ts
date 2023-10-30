@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { databaseConnection } from "../context/Database.js";
 
 await databaseConnection.user.createMany({

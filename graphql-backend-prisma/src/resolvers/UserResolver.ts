@@ -1,6 +1,4 @@
-import { Comment, Post, Prisma } from "@prisma/client";
 import { GQLResolvers } from "../__generated__/resolvers-types";
-import { databaseConnection } from "../context/Database";
 
 export const UserResolver: GQLResolvers = {
   Query: {
