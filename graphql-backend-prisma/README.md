@@ -202,7 +202,7 @@ query Users($pagination: PaginationInput!, $filter: UserFilter) {
 ```
 
 GraphQL will resolve this into these steps:
-![GraphQL query overview](./assets/graphql-3.png)
+![GraphQL query overview](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/graphql-3.png)
 
 It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing the field resolvers with `findMany()` from Prisma it's clear to see the N plus 1 problem emerging.
 
@@ -220,11 +220,11 @@ User: {
 ```
 
 If you run this with debug mode in Prisma you will see alot of select statements. If you follow the diagram above you can see each of these post / comment queries is their own SELECT statement.
-![Select queries](./assets/select-queries.png)
+![Select queries](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/select-queries.png)
 This is the famous N plus 1 problem because we need to resolve N plus 1 queries. You can guess that this is a major issue for a server because we are using more ressources than we need to. Just imagine what it looks like if we would add yet another child field to the query. For example adding another one-to-many relation to the comment. Suddenly it will be alot more queries to the database than what is needed.
 
 And now if we take it back to using the correct syntax and using Prisma `findUnique()` method we will see a drastically better select statements:
-![Select queries](./assets/select-queries-findunique.png)
+![Select queries](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/select-queries-findunique.png)
 
 Behind the scenes Prisma is trying to batch these queries `findUnique()` together with a `WHERE IN()` statement meaning they are being batched together and not really run individually. That is the DataLoader built in Prisma working it's magic. If you want to learn more about this I suggest reading [this article](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance).
 
