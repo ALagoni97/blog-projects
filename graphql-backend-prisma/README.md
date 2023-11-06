@@ -65,16 +65,32 @@ As far as the token in your context I would in a real world example replace it w
 
 ### Field resolvers in GraphQL
 
-Let's take a look at how resolvers work in Apollo / GraphQL. A resolver in Apollo is basically just a function which sole purpose is to populate some data for the specific query that is being run. It can return any amount of data we define and it can return data from our own database or fetch from external API's.
+Let's take a look at how resolvers work in Apollo / GraphQL. A resolver in Apollo is a function whose sole purpose is to populate some data for the specific query that is being run. It can return any amount of data we define and it can return data from our own database or fetch from external API's.
 
 We define them very simply by creating a function. This function will take the 4 arguments:
 
-1. _parent_ - This is a value returned by the previous resolver. We will use this in field resolvers that need the context of the parent to be able to populate data. If it's a top-level field (As in the first resolver that the query meets) then this field is populated by rootValue function passes to Apollo Server's constructor.
+1. _parent_ - This is a value returned by the previous resolver. We will use this in field resolvers that need the context of the parent to be able to populate data. If it's a top-level field (As in the first resolver that the query meets) then this field is populated by rootValue function passes to Apollo Server's constructor. You will see me using "\_" for this to show the field is not used.
 2. _args_ - Arguments passes to the resolver. This can be filtering from the client or pagination or anything that get's passes as an argument to the resolver.
 3. _context_ - This is the context value that we previously populated in the `startStandaloneServer`. We can populate this object with any data we want and is shared on all resolvers.
 4. _info_ - Contains information about the operation's execution state, we won't really use this in this article. You can read more [here](https://github.com/graphql/graphql-js/blob/f851eba93167b04d6be1373ff27927b16352e202/src/type/definition.ts#L891-L902)
 
-The next few examples I am going to show here is being run by a simple query:
+A root field resolver would look something like this:
+
+```ts
+Query: {
+    users: async (_, { pagination, filter }, context) => {
+      const users = await context.database.user.findMany({
+        where: {
+          name: filter.name,
+        },
+        take: pagination.perPage,
+      });
+      return users;
+    },
+},
+```
+
+The next few examples I am going to show here is being run by a simple query. If you want to immitate this exact query you can open your Apollo playground and paste this in. Fill out the required fields and run the query.
 
 ```graphql
 query Users($pagination: PaginationInput!, $filter: UserFilter) {
@@ -121,7 +137,7 @@ type Comment {
 }
 ```
 
-We define the root resolver like this:
+As I showed you before the root resolver looks like this for this query and uses Prisma as our ORM:
 
 ```ts
 Query: {
@@ -136,8 +152,6 @@ Query: {
     },
 },
 ```
-
-Here we are using Prisma as our ORM and trying to fetch all users with pagination.
 
 **What about posts and comments?**
 The posts and comments are going to be populated by their own field resolvers inside user resolver. We are doing this to seperate the business logic from each resolvers to their own. We will define the posts resolver like this:
@@ -202,6 +216,7 @@ query Users($pagination: PaginationInput!, $filter: UserFilter) {
 ```
 
 GraphQL will resolve this into these steps:
+
 ![GraphQL query overview](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/graphql-3.png)
 
 It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing the field resolvers with `findMany()` from Prisma it's clear to see the N plus 1 problem emerging.
@@ -224,6 +239,7 @@ If you run this with debug mode in Prisma you will see alot of select statements
 This is the famous N plus 1 problem because we need to resolve N plus 1 queries. You can guess that this is a major issue for a server because we are using more ressources than we need to. Just imagine what it looks like if we would add yet another child field to the query. For example adding another one-to-many relation to the comment. Suddenly it will be alot more queries to the database than what is needed.
 
 And now if we take it back to using the correct syntax and using Prisma `findUnique()` method we will see a drastically better select statements:
+
 ![Select queries](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/select-queries-findunique.png)
 
 Behind the scenes Prisma is trying to batch these queries `findUnique()` together with a `WHERE IN()` statement meaning they are being batched together and not really run individually. That is the DataLoader built in Prisma working it's magic. If you want to learn more about this I suggest reading [this article](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance).
