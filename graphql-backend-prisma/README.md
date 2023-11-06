@@ -219,7 +219,11 @@ GraphQL will resolve this into these steps:
 
 ![GraphQL query overview](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/graphql-3.png)
 
-It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. By writing the field resolvers with `findMany()` from Prisma it's clear to see the N plus 1 problem emerging.
+It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. The above diagram shows how GraphQL will resolve the query and the next diagram will show how Prisma will batch these queries together -
+
+Prisma will batch each of the field resolvers if they share the where statement
+
+By writing the field resolvers with `findMany()` from Prisma it's clear to see the N plus 1 problem emerging.
 
 ```ts
 User: {
