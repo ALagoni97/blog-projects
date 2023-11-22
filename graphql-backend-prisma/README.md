@@ -1,4 +1,4 @@
-## How to create a GraphQL backend with Apollo and Prisma
+## How to solve the N plus 1 problem in GraphQL with Prisma and Apollo
 
 In this post I am going to show how to create a GraphQL backend with Apollo Server and Prisma as our ORM. The goal of the post is to give some insights behind the scenes on how Prisma solves the N plus 1 problem and how to create a backend where we use basic authorization and using Apollo Server context to provide valuable information to each of our resolvers. After this post you should be able to create a new GraphQL backend with a strong foundation or change your existing backend to utilize these features. You can see the entire code in this post at this [link](https://github.com/ALagoni97/blog-projects/tree/main/graphql-backend-prisma)
 
@@ -171,12 +171,12 @@ User: {
 },
 ```
 
-Here we are using the parent argument being passed down from the top-level users resolver. We use that to get the userId from that user and return all their posts.
+Here we are using the parent argument being passed down from the top-level users resolver. We use that to get the userId from the user and return all their posts.
 
 **Why findUnique and not findMany?**
-It would probably make sense to do a `context.database.post.findMany()` instead of what we are doing here, but this is a constraint directly from Prisma. We need to utilize their built in DataLoader and for that we need to use `.findUnique()`. As of writing this article, they have not yet implemented batching to `findMany()`. See the issue [here](https://github.com/prisma/prisma/issues/1477)
+It would probably make sense to do a `post.findMany()` instead of what we are doing here, but this is a constraint directly from Prisma. We need to utilize their built in DataLoader and for that we need to use `.findUnique()`. As of writing this article, they have not yet implemented batching to `findMany()`. See the issue [here](https://github.com/prisma/prisma/issues/1477)
 
-For the comments of each post we do exactly the same as we did with the post:
+For the comments of each post we do exactly the same as we did with the posts for a user:
 
 ```ts
 Post: {
@@ -187,7 +187,7 @@ Post: {
             postId: parent.postId,
           },
         })
-        .Comments({ take: 2 });
+        .Comments({ take: 5 });
       return comments;
     },
 },
@@ -197,7 +197,7 @@ Let's take a look at what's going on under the hood.
 
 ## The queries and Prisma under the hood
 
-Let's take example in the earlier used query:
+Let's take the example in the earlier used query:
 
 ```graphql
 query Users($pagination: PaginationInput!, $filter: UserFilter) {
@@ -219,11 +219,15 @@ GraphQL will resolve this into these steps:
 
 ![GraphQL query overview](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/graphql-3.png)
 
-It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. The above diagram shows how GraphQL will resolve the query and the next diagram will show how Prisma will batch these queries together -
+It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. The above diagram shows how GraphQL will resolve the query, but let's take a closer look on what happens under the hood in Prisma:
 
-Prisma will batch each of the field resolvers if they share the where statement
+![Prisma query optimization]("")
 
-By writing the field resolvers with `findMany()` from Prisma it's clear to see the N plus 1 problem emerging.
+Here you can clearly see that a `Promise.all` is surrounding all of the posts. This is exactly where Prisma hooks in and allows their query optimization to take place. They will take these post queries and batch them together and only doing so to `findUnique()` with a shared where statement.
+
+Prisma will do the exact same for the comments of the posts and batch together the queries that share a where statement and are using `findUnique()`.
+
+Let's try and remove the optimization from the API and switch to using ``findMany()` which will not be batched and optimized by Prisma. It will now be obvious that we have a N plus 1 problem emerging:
 
 ```ts
 User: {
@@ -235,6 +239,16 @@ User: {
       });
       return post;
     },
+
+    user.findUnique().Posts()
+
+    posts.findMany({
+      where: {
+        id: {
+          in: [...ids]
+        }
+      }
+    })
 },
 ```
 
@@ -246,7 +260,7 @@ And now if we take it back to using the correct syntax and using Prisma `findUni
 
 ![Select queries](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/select-queries-findunique.png)
 
-Behind the scenes Prisma is trying to batch these queries `findUnique()` together with a `WHERE IN()` statement meaning they are being batched together and not really run individually. That is the DataLoader built in Prisma working it's magic. If you want to learn more about this I suggest reading [this article](https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance).
+You can clearly see the `findUnique()` queries are not being run. This is Prisma DataLoader working it's magic as we previously looked at. If you want to dive a little deeper into this, check [this page]("https://www.prisma.io/docs/guides/performance-and-optimization/query-optimization-performance") from Prisma.
 
 ## What's next?
 
