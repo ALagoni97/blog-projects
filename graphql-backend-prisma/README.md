@@ -217,13 +217,13 @@ query Users($pagination: PaginationInput!, $filter: UserFilter) {
 
 GraphQL will resolve this into these steps:
 
-![GraphQL query overview](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/graphql-3.png)
+![GraphQL query overview](./assets/first.jpeg)
 
 It starts at the top-level query with fetching all the users. After that each user will fetch their posts and each post will fetch their comments. The above diagram shows how GraphQL will resolve the query, but let's take a closer look on what happens under the hood in Prisma:
 
-![Prisma query optimization](https://raw.githubusercontent.com/ALagoni97/blog-projects/main/graphql-backend-prisma/assets/prisma_expanded_query.jpg)
+![Prisma query optimization](./assets/second.jpeg)
 
-Here you can clearly see that a `Promise.all` is surrounding all of the posts. This is exactly where Prisma hooks in and allows their query optimization to take place. They will take these post queries and batch them together and only doing so to `findUnique()` with a shared where statement.
+Here you can clearly see that a `Promise.all` is surrounding all of the users / posts. This is exactly where Prisma hooks in and allows their query optimization to take place. They will take these post queries and batch them together and only doing it to `findUnique()` with a shared where statement.
 
 Prisma will do the exact same for the comments of the posts and batch together the queries that share a where statement and are using `findUnique()`.
 
