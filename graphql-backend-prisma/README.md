@@ -8,8 +8,6 @@ Inspiration is also taken from this article from Prisma themselves - Read it [he
 
 ### Setup
 
-**Note**: If you just want to read about the different features and see code examples, then just jump to the next section [here](#resolvers-and-graphql-type-definitions)
-
 You would need Docker installed as we are using a PostgreSQL database.
 I would recommend you fork my repository because it has everything you need to set it up (If you are starting a new project that is).
 This will allow you to test these features out for yourself. Follow these steps for a quick start:
@@ -20,13 +18,13 @@ This will allow you to test these features out for yourself. Follow these steps 
 4. Type `docker-compose up -d`
 5. Type `yarn prisma migrate dev` - This should create the correct tables and seed data in your database. If the seed data is not present, type `yarn prisma db seed`
 6. Now start the server `yarn dev`
-7. Now you can open the localhost Apollo Playground, where you can execute your queries.
+7. Now you can open the localhost Apollo Playground, where you can execute your queries. This is usually at path `http:localhost:${PORT}/graphql`
 
 You now have a simple GraphQL backend with context properties and a way for you to experiment with new features and allow you to use the rest of this article as an inspiration to test how the different features work.
 
 ### Context object
 
-We obviously want some context for our GraphQL resolvers so they can easily access any authentication state of the user trying to access the data and also gain access to the database. We do this by extending the BaseContext of Apollo Server. It is done where you instantiate your Apollo Server.
+We want some context for our GraphQL resolvers so they can easily access any authentication state of the user trying to access the data and also gain access to the database. We do this by extending the BaseContext of Apollo Server. It is done where you instantiate your Apollo Server.
 
 ```ts
 const server = new ApolloServer<Context>({
@@ -61,7 +59,7 @@ const { url } = await startStandaloneServer(server, {
 
 The satisfies operator is used here to make Typescript aware of what context properties it should expect, which will help Typescript with autocompleting the context as expected. Without this, the `startStandaloneServer` would throw so you knew you needed something, but you wouldn't get autocompletion in the context object.
 
-As far as the token in your context I would in a real world example replace it with some kind of authentication of the user. Verifying that the query is infact authorized instead of just returning a string.
+As far as the token in your context, in a real world example replace it with some kind of authentication of the user. Verifying that the query is infact authorized instead of just returning a string.
 
 ### Field resolvers in GraphQL
 
@@ -171,9 +169,10 @@ User: {
 },
 ```
 
-Here we are using the parent argument being passed down from the top-level users resolver. We use that to get the userId from the user and return all their posts.
+Here we are using the parent argument being passed down from the top-level users resolver. We use that to get the `userId` from the user and return all their posts.
 
-**Why findUnique and not findMany?**
+**Why `findUnique` and not `findMany`?**
+
 It would probably make sense to do a `post.findMany()` instead of what we are doing here, but this is a constraint directly from Prisma. We need to utilize their built in DataLoader and for that we need to use `.findUnique()`. As of writing this article, they have not yet implemented batching to `findMany()`. See the issue [here](https://github.com/prisma/prisma/issues/1477)
 
 For the comments of each post we do exactly the same as we did with the posts for a user:
