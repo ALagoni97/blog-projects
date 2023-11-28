@@ -226,7 +226,7 @@ Here you can clearly see that a `Promise.all` is surrounding all of the users / 
 
 Prisma will do the exact same for the comments of the posts and batch together the queries that share a where statement and are using `findUnique()`.
 
-Let's try and remove the optimization from the API and switch to using ``findMany()` which will not be batched and optimized by Prisma. It will now be obvious that we have a N plus 1 problem emerging:
+Let's try and remove the optimization from the API and switch to using `findMany()` which will not be batched and optimized by Prisma. It will now be obvious that we have a N plus 1 problem emerging:
 
 ```ts
 User: {
@@ -286,4 +286,4 @@ type User {
 You can add it to the root query or to specific fields like the `user.unreadMessages` field.
 You can read more about it [here](https://www.apollographql.com/docs/apollo-server/schema/directives/).
 
-I hope you gained something from this article and learned something about Prisma, Apollo and GraphQL!
+I hope you gained something from this article and learned something about Prisma, Apollo and GraphQL.
